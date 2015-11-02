@@ -1,0 +1,33 @@
+#!/usr/bin/env python
+
+##simple listerner demo that listens to sensor_msgs/joy published
+## to the '/joy' topic
+
+import rospy
+import roslib;roslib.load_manifest('joy2twist')
+from sensor_msgs.msg import Joy
+
+from geometry_msgs.msg import Twist
+
+
+def callback(data):
+    rospy.loginfo(rospy.get_name() + ": Get from Joy [%.2f, %.2f, %.2f,%.2f, %.2f, %.2f]"% data.axes)
+    msg = Twist()
+    msg.linear.x = data.axes[1]
+    msg.angular.z = data.axes[0]
+    pub.publish(msg)
+
+def listener():
+    global pub
+	
+    rospy.init_node('listener', anonymous=True)
+
+    rospy.Subscriber("/joy", Joy, callback)
+    
+    pub = rospy.Publisher('/cmd_vel', Twist)
+
+    # spin() simply keeps python from exiting until this node is stopped
+    rospy.spin()
+
+if __name__ == '__main__':
+    listener()
